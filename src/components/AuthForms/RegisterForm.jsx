@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { register } from "../../api/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const RegisterForm = () => {
+  // State to manage form data
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,33 +14,46 @@ const RegisterForm = () => {
     mobile: "",
   });
 
-  const { isAuthenticated } = useAuth;
+  // Custom hook to handle authentication context
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect to home page if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
+  // Handle input changes and update form state
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Call register API
       await register(formData);
+
+      // Display success toast
       toast.success("Registration successful!");
+
+      // Redirect to home page after a short delay
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } catch (error) {
       console.error(error);
+
+      // Determine error message
       const errorMessage =
         error.response && error.response.data && error.response.data.message
           ? error.response.data.message
-          : "Registration  failed!";
+          : "Registration failed!";
+
+      // Display error toast
       toast.error(errorMessage);
     }
   };

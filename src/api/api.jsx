@@ -2,9 +2,11 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000";
 
+// Function to get the token from local storage
 const getToken = () => localStorage.getItem("token");
 console.log(localStorage.getItem("token"));
 
+// Create an Axios instance with a base URL and default headers
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -12,6 +14,7 @@ export const api = axios.create({
   },
 });
 
+// Axios request interceptor to add the Authorization header if the token exists
 api.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -24,27 +27,116 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-export const register = (user) => api.post("/users/register", user);
-export const login = (user) => api.post("/auth/login", user);
-export const createProject = (userId, title) => {
-  api.post(`/projects/${userId}`, { title });
+
+/**
+ * Registers a new user.
+ * @param {Object} user - The user details for registration.
+ * @returns {Promise} Axios promise for the registration request.
+ */
+export const register = (user) => {
+  return api.post("/users/register", user);
 };
 
-export const getProjects = (userId) => {
-  const response = api.get(`/projects/${userId}`);
-  return response;
+/**
+ * Logs in a user.
+ * @param {Object} user - The user details for login.
+ * @returns {Promise} Axios promise for the login request.
+ */
+export const login = (user) => {
+  return api.post("/auth/login", user);
 };
-export const removeProject = (id) =>
-  api.delete(`/projects/deleteproject/${id}`);
-export const updateProject = (projectId, title) =>
-  api.put(`/projects/updateproject/${projectId}`, title);
-export const getProjectById = (id) => api.get(`/projects/projectsbyid/${id}`);
-export const addTodoToProject = (projectId, todo) =>
-  api.post(`/projects/${projectId}/todos`, todo);
-export const updateTodoStatus = (todoId, status) =>
-  api.put(`/projects/todos/${todoId}`, { status });
-export const updateTodos = (todoId, updateData) =>
-  api.put(`/projects/update/${todoId}`, updateData);
-export const deleteTodo = (todoId) => api.delete(`/projects/todos/${todoId}`);
-export const exportProjectSummary = (projectId) =>
-  api.get(`/projects/${projectId}/export`);
+
+/**
+ * Creates a new project.
+ * @param {string} userId - The ID of the user creating the project.
+ * @param {string} title - The title of the new project.
+ * @returns {Promise} Axios promise for the project creation request.
+ */
+export const createProject = (userId, title) => {
+  return api.post(`/projects/${userId}`, { title });
+};
+
+/**
+ * Retrieves the list of projects for a user.
+ * @param {string} userId - The ID of the user whose projects are being retrieved.
+ * @returns {Promise} Axios promise for the projects retrieval request.
+ */
+export const getProjects = (userId) => {
+  return api.get(`/projects/${userId}`);
+};
+
+/**
+ * Removes a project.
+ * @param {string} id - The ID of the project to be removed.
+ * @returns {Promise} Axios promise for the project removal request.
+ */
+export const removeProject = (id) => {
+  return api.delete(`/projects/deleteproject/${id}`);
+};
+
+/**
+ * Updates an existing project.
+ * @param {string} projectId - The ID of the project to be updated.
+ * @param {Object} title - The updated title of the project.
+ * @returns {Promise} Axios promise for the project update request.
+ */
+export const updateProject = (projectId, title) => {
+  return api.put(`/projects/updateproject/${projectId}`, title);
+};
+
+/**
+ * Retrieves a project by its ID.
+ * @param {string} id - The ID of the project to be retrieved.
+ * @returns {Promise} Axios promise for the project retrieval request.
+ */
+export const getProjectById = (id) => {
+  return api.get(`/projects/projectsbyid/${id}`);
+};
+
+/**
+ * Adds a new todo item to a project.
+ * @param {string} projectId - The ID of the project to add the todo to.
+ * @param {Object} todo - The todo item to be added.
+ * @returns {Promise} Axios promise for the todo addition request.
+ */
+export const addTodoToProject = (projectId, todo) => {
+  return api.post(`/projects/${projectId}/todos`, todo);
+};
+
+/**
+ * Updates the status of a todo item.
+ * @param {string} todoId - The ID of the todo item to be updated.
+ * @param {string} status - The new status of the todo item.
+ * @returns {Promise} Axios promise for the todo status update request.
+ */
+export const updateTodoStatus = (todoId, status) => {
+  return api.put(`/projects/todos/${todoId}`, { status });
+};
+
+/**
+ * Updates a todo item with new data.
+ * @param {string} todoId - The ID of the todo item to be updated.
+ * @param {Object} updateData - The new data for the todo item.
+ * @returns {Promise} Axios promise for the todo update request.
+ */
+export const updateTodos = (todoId, updateData) => {
+  return api.put(`/projects/update/${todoId}`, updateData);
+};
+
+/**
+ * Deletes a todo item.
+ * @param {string} todoId - The ID of the todo item to be deleted.
+ * @returns {Promise} Axios promise for the todo deletion request.
+ */
+export const deleteTodo = (todoId) => {
+  return api.delete(`/projects/todos/${todoId}`);
+};
+
+/**
+ * Exports the summary of a project.
+ * @param {string} projectId - The ID of the project to export the summary for.
+ * @returns {Promise} Axios promise for the project summary export request.
+ */
+export const exportProjectSummary = (projectId) => {
+  return api.get(`/projects/${projectId}/export`);
+};

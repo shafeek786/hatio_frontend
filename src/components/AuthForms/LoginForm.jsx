@@ -3,41 +3,56 @@ import { login } from "../../api/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom"; // Import Link for navigation
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
+  // State to manage form data
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  // Custom hook to handle authentication context
   const { checkAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect to home page if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
+  // Handle input changes and update form state
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Call login API
       const response = await login(formData);
+
+      // Store token in local storage
       localStorage.setItem("token", response.data.access_token);
 
+      // Display success toast
       toast.success("Login successful!");
+
+      // Update authentication status
       checkAuth();
     } catch (error) {
       console.error(error);
+
+      // Determine error message
       const errorMessage =
         error.response && error.response.data && error.response.data.message
           ? error.response.data.message
           : "Login failed!";
+
+      // Display error toast
       toast.error(errorMessage);
     }
   };

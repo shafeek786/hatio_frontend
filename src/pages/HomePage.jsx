@@ -19,7 +19,7 @@ const HomePage = () => {
   const handleCreateProject = async () => {
     try {
       console.log(newProjectTitle);
-      await createProject(userId, { title: newProjectTitle });
+      await createProject(userId, newProjectTitle);
       setNewProjectTitle("");
       fetchProjects(userId);
     } catch (error) {

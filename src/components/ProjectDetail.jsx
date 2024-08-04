@@ -13,7 +13,7 @@ const ProjectDetail = () => {
   const [editingTodo, setEditingTodo] = useState(null);
   const [editingName, setEditingName] = useState("");
   const [editingDescription, setEditingDescription] = useState("");
-  const [setEditingError] = useState("");
+  const [editingError, setEditingError] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [titleError, setTitleError] = useState("");
@@ -25,62 +25,102 @@ const ProjectDetail = () => {
     exportSummary,
   } = useProjects();
 
+  // Fetch project details when component mounts or project ID changes
   useEffect(() => {
-    fetchProjectById(id);
+    const fetchProject = async () => {
+      try {
+        await fetchProjectById(id);
+      } catch (error) {
+        toast.error("Failed to fetch project details.");
+      }
+    };
+
+    fetchProject();
   }, [id, fetchProjectById]);
 
+  // Handler to add a new todo
   const handleAddTodo = async () => {
     if (!newTodoName || !newTodoDescription) {
       setNewTodoError("Please enter both name and description for the todo.");
       return;
     }
-    await addTodo(id, { name: newTodoName, description: newTodoDescription });
-    setNewTodoName("");
-    setNewTodoDescription("");
-    setNewTodoError("");
-    toast.success("Todo added successfuly");
+    try {
+      await addTodo(id, { name: newTodoName, description: newTodoDescription });
+      setNewTodoName("");
+      setNewTodoDescription("");
+      setNewTodoError("");
+      toast.success("Todo added successfully");
+    } catch (error) {
+      toast.error("Failed to add todo.");
+    }
   };
 
+  // Handler to update an existing todo
   const handleUpdateTodo = async (todoId) => {
     if (!editingName || !editingDescription) {
       setEditingError("Please enter both name and description for the todo.");
       return;
     }
-    await updateTodos(todoId, {
-      name: editingName,
-      description: editingDescription,
-      updatedDate: new Date(),
-    });
-    toast.success("Todo updated successfuly");
-    setEditingTodo(null);
-    setEditingError("");
+    try {
+      await updateTodos(todoId, {
+        name: editingName,
+        description: editingDescription,
+        updatedDate: new Date(),
+      });
+      toast.success("Todo updated successfully");
+      setEditingTodo(null);
+      setEditingError("");
+    } catch (error) {
+      toast.error("Failed to update todo.");
+    }
   };
 
+  // Handler to change the status of a todo
   const handleTodoStatusChange = async (todoId, status) => {
-    await updateTodoStatus(todoId, { status });
-    toast.success("Todo status changed");
+    try {
+      await updateTodoStatus(todoId, { status });
+      toast.success("Todo status changed");
+    } catch (error) {
+      toast.error("Failed to change todo status.");
+    }
   };
 
+  // Handler to delete a todo
   const handleDeleteTodo = async (todoId) => {
-    await removeTodo(todoId);
-    toast.success("Todo deleted");
+    try {
+      await removeTodo(todoId);
+      toast.success("Todo deleted");
+    } catch (error) {
+      toast.error("Failed to delete todo.");
+    }
   };
 
+  // Handler to export the project summary
   const handleExportSummary = async () => {
-    await exportSummary(id);
+    try {
+      await exportSummary(id);
+    } catch (error) {
+      toast.error("Failed to export summary.");
+    }
   };
 
+  // Handler to update the project title
   const handleUpdateTitle = async () => {
     if (!editedTitle) {
       setTitleError("Please enter a title for the project.");
       return;
     }
-    await updateProject(id, { title: editedTitle });
-    setIsEditingTitle(false);
-    setTitleError("");
-    toast.success("Project title updated");
+    try {
+      await updateProject(id, { title: editedTitle });
+      setIsEditingTitle(false);
+      setTitleError("");
+      toast.success("Project title updated");
+    } catch (error) {
+      toast.error("Failed to update project title.");
+    }
   };
 
+  // Handler to cancel title editing
   const handleCancelEditTitle = () => {
     setIsEditingTitle(false);
     setEditedTitle(currentProject.title || "");
@@ -89,6 +129,7 @@ const ProjectDetail = () => {
 
   if (!currentProject) return <div>Loading...</div>;
 
+  // Separate completed and pending todos
   const completedTodos = currentProject.todos.filter((todo) => todo.status);
   const pendingTodos = currentProject.todos.filter((todo) => !todo.status);
   const totalTodos = currentProject.todos.length;
@@ -96,6 +137,7 @@ const ProjectDetail = () => {
 
   return (
     <div className="max-w-4xl mx-auto mt-8 p-6 bg-gray-100 rounded-lg shadow-lg">
+      {/* Project Title Section */}
       {isEditingTitle ? (
         <div className="mb-6 flex flex-col items-start">
           <input
@@ -137,6 +179,8 @@ const ProjectDetail = () => {
           </button>
         </div>
       )}
+
+      {/* Add New Todo Section */}
       <div className="mb-6">
         <div className="flex gap-4 mb-4">
           <input
@@ -172,10 +216,14 @@ const ProjectDetail = () => {
           </button>
         </div>
       </div>
+
+      {/* Todos Summary Section */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
           Summary: {completedCount}/{totalTodos} todos completed
         </h3>
+
+        {/* Pending Todos */}
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">
           Pending Todos
         </h3>
@@ -216,58 +264,64 @@ const ProjectDetail = () => {
                         Cancel
                       </button>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col w-full">
-                    <p className="text-lg font-bold">{todo.name}</p>
-                    <p className="text-gray-500">{todo.description}</p>
-                    <p className="pt-4 text-sm text-gray-600">
-                      Created: {new Date(todo.createdDate).toLocaleDateString()}
-                    </p>
-                    {todo.updatedDate && (
-                      <p className="text-sm text-gray-600">
-                        Updated:{" "}
-                        {new Date(todo.updatedDate).toLocaleDateString()}
+                    {editingError && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {editingError}
                       </p>
                     )}
                   </div>
+                ) : (
+                  <div className="flex flex-col w-full">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold text-gray-700">
+                        {todo.name}
+                      </h4>
+                      <div>
+                        <button
+                          onClick={() =>
+                            handleTodoStatusChange(todo._id, !todo.status)
+                          }
+                          className={`py-1 px-2 text-white rounded-lg ${
+                            todo.status
+                              ? "bg-green-600 hover:bg-green-700"
+                              : "bg-yellow-600 hover:bg-yellow-700"
+                          }`}
+                        >
+                          {todo.status ? "Completed" : "Mark as Complete"}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTodo(todo._id)}
+                          className="py-1 px-2 bg-red-600 text-white rounded-lg hover:bg-red-700 ml-2"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingTodo(todo._id);
+                            setEditingName(todo.name);
+                            setEditingDescription(todo.description);
+                          }}
+                          className="py-1 px-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ml-2"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-gray-600">{todo.description}</p>
+                  </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={todo.status}
-                    onChange={() =>
-                      handleTodoStatusChange(todo._id, !todo.status)
-                    }
-                    className="mr-4"
-                  />
-                  <button
-                    onClick={() => {
-                      setEditingTodo(todo._id);
-                      setEditingName(todo.name || "");
-                      setEditingDescription(todo.description || "");
-                    }}
-                    className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTodo(todo._id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition"
-                  >
-                    Delete
-                  </button>
-                </div>
               </li>
             ))
           ) : (
-            <p>No pending todos</p>
+            <p>No pending todos.</p>
           )}
         </ul>
+
+        {/* Completed Todos */}
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">
           Completed Todos
         </h3>
-        <ul className="space-y-4">
+        <ul className="space-y-4 mb-8">
           {completedTodos.length > 0 ? (
             completedTodos.map((todo) => (
               <li
@@ -275,40 +329,42 @@ const ProjectDetail = () => {
                 className="border border-gray-300 rounded-lg p-4 bg-white shadow-md flex items-center justify-between"
               >
                 <div className="flex flex-col w-full">
-                  <p className="text-lg font-bold">{todo.name}</p>
-                  <p className="text-gray-500">{todo.description}</p>
-                  <p className="pt-4 text-sm text-gray-600">
-                    Created: {new Date(todo.createdDate).toLocaleDateString()}
-                  </p>
-                  {todo.updatedDate && (
-                    <p className="text-sm text-gray-600">
-                      Updated: {new Date(todo.updatedDate).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={todo.status}
-                    onChange={() =>
-                      handleTodoStatusChange(todo._id, !todo.status)
-                    }
-                    className="mr-4"
-                  />
-                  <button
-                    onClick={() => handleDeleteTodo(todo._id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-lg font-semibold text-gray-700">
+                      {todo.name}
+                    </h4>
+                    <div>
+                      <button
+                        onClick={() =>
+                          handleTodoStatusChange(todo._id, !todo.status)
+                        }
+                        className={`py-1 px-2 text-white rounded-lg ${
+                          todo.status
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-yellow-600 hover:bg-yellow-700"
+                        }`}
+                      >
+                        {todo.status ? "Completed" : "Mark as Complete"}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTodo(todo._id)}
+                        className="py-1 px-2 bg-red-600 text-white rounded-lg hover:bg-red-700 ml-2"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-600">{todo.description}</p>
                 </div>
               </li>
             ))
           ) : (
-            <p>No completed todos</p>
+            <p>No completed todos.</p>
           )}
         </ul>
       </div>
+
+      {/* Toast Notifications */}
       <ToastContainer />
     </div>
   );
