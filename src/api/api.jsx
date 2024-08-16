@@ -65,6 +65,16 @@ export const getProjects = (userId) => {
   return api.get(`/projects/${userId}`);
 };
 
+export const getDeletedProjects = (userId) => {
+  return api.get(`/projects/deleted/${userId}`);
+};
+
+export const getDeletedproject = (userId) => {
+  return api.get(`/projects/get_deleted_project/${userId}`);
+};
+// export const getDeletedTodo = { userId } => {
+//   return  api.get(`/projects/get_deleted/${userId}`)
+// }
 /**
  * Removes a project.
  * @param {string} id - The ID of the project to be removed.

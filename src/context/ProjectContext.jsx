@@ -7,6 +7,7 @@ import {
   exportProjectSummary,
   getProjects,
   removeProject,
+  getDeletedproject,
 } from "../api/api";
 
 // Create a context for managing project-related state and actions
@@ -16,6 +17,17 @@ export const ProjectProvider = ({ children }) => {
   // State to hold the current project and the list of projects
   const [currentProject, setCurrentProject] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [deletedProject, setDeletedProject] = useState([]);
+
+  const getDeletedProject = useCallback(async (userId) => {
+    try {
+      console.log("deleted");
+      const { data } = await getDeletedproject(userId);
+      setDeletedProject(data.projects);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  }, []);
 
   // Function to fetch all projects, with userId as a parameter
   const fetchProjects = useCallback(async (userId) => {
@@ -111,6 +123,8 @@ export const ProjectProvider = ({ children }) => {
         fetchProjects,
         projects,
         removeProjectById,
+        deletedProject,
+        getDeletedProject,
       }}
     >
       {children}

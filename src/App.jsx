@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectRoute";
 import { ProjectProvider } from "./context/ProjectContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Trash from "./pages/Trash";
 
 /**
  * Main application component that sets up routing, context providers, and global components.
@@ -53,7 +54,7 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
+              <Route path="/trash" element={<Trash />} />
               {/* Login page route */}
               {/* Accessible to all users */}
               <Route path="/login" element={<LoginPage />} />

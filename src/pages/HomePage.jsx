@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { createProject, removeProject, updateProject } from "../api/api";
+import { createProject, updateProject } from "../api/api";
 import { useProjects } from "../context/ProjectContext";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
@@ -47,6 +47,7 @@ const HomePage = () => {
     setEditingProjectId(null);
     setEditTitle("");
   };
+
   const handleDeleteProject = async (id) => {
     await removeProjectById(id);
     fetchProjects(userId);
@@ -70,6 +71,13 @@ const HomePage = () => {
         >
           Create Project
         </button>
+        {/* Trash Button */}
+        <Link
+          to="/trash"
+          className="py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          Trash
+        </Link>
       </div>
       <ul className="space-y-4">
         {projects &&

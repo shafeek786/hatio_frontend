@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useProjects } from "../context/ProjectContext";
 import { updateTodos, updateTodoStatus, updateProject } from "../api/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import EditeModal from "./EditeModal";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -15,8 +16,8 @@ const ProjectDetail = () => {
   const [editingDescription, setEditingDescription] = useState("");
   const [editingError, setEditingError] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editedTitle, setEditedTitle] = useState("");
-  const [titleError, setTitleError] = useState("");
+  // const [editedTitle, setEditedTitle] = useState("");
+  // const [titleError, setTitleError] = useState("");
   const {
     currentProject,
     fetchProjectById,
@@ -105,13 +106,13 @@ const ProjectDetail = () => {
   };
 
   // Handler to update the project title
-  const handleUpdateTitle = async () => {
-    if (!editedTitle) {
+  const handleUpdateTitle = async (editTitle) => {
+    if (!editTitle) {
       setTitleError("Please enter a title for the project.");
       return;
     }
     try {
-      await updateProject(id, { title: editedTitle });
+      await updateProject(id, { title: editTitle });
       setIsEditingTitle(false);
       setTitleError("");
       toast.success("Project title updated");
@@ -139,30 +140,10 @@ const ProjectDetail = () => {
     <div className="max-w-4xl mx-auto mt-8 p-6 bg-gray-100 rounded-lg shadow-lg">
       {/* Project Title Section */}
       {isEditingTitle ? (
-        <div className="mb-6 flex flex-col items-start">
-          <input
-            type="text"
-            value={editedTitle}
-            onChange={(e) => setEditedTitle(e.target.value)}
-            className="border border-gray-300 rounded-lg p-3 w-full mb-3"
-            placeholder="Edit project title"
-          />
-          {titleError && <p className="text-red-500 text-sm">{titleError}</p>}
-          <div className="flex gap-2">
-            <button
-              onClick={handleUpdateTitle}
-              className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              Save Title
-            </button>
-            <button
-              onClick={handleCancelEditTitle}
-              className="py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <EditeModal
+          cancel={handleCancelEditTitle}
+          updateTitle={handleUpdateTitle}
+        />
       ) : (
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-gray-900 flex-grow">
@@ -181,6 +162,8 @@ const ProjectDetail = () => {
       )}
 
       {/* Add New Todo Section */}
+      <Link to={"/trash"}>Trash</Link>
+
       <div className="mb-6">
         <div className="flex gap-4 mb-4">
           <input
