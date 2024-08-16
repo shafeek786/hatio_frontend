@@ -24,9 +24,6 @@ const Trash = () => {
             >
               <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
               <p className="text-gray-700 mb-2">{project.description}</p>
-              <p className="text-gray-500 text-sm">
-                Deleted on: {new Date(project.deletedDate).toLocaleDateString()}
-              </p>
             </li>
           ))}
         </ul>
